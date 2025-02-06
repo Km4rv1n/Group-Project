@@ -2,6 +2,7 @@ package com.marvin.example.jobportal.controllers;
 
 import com.marvin.example.jobportal.enums.ExperienceLevel;
 import com.marvin.example.jobportal.enums.Location;
+import com.marvin.example.jobportal.exceptions.JobNotFoundException;
 import com.marvin.example.jobportal.models.Application;
 import com.marvin.example.jobportal.models.Category;
 import com.marvin.example.jobportal.models.Job;
@@ -18,9 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/jobs")
@@ -88,8 +87,12 @@ public class JobController {
     @PutMapping("/{id}")
     public String updateJob(@Valid @ModelAttribute("job") Job job,BindingResult bindingResult,@PathVariable Integer id, Model model, Principal principal, RedirectAttributes redirectAttributes) {
         Job existingJob = jobService.getJobById(id);
-
         User currentUser = userService.findByUsername(principal.getName());
+
+        if(!existingJob.getCreatedBy().equals(currentUser)){
+            throw new JobNotFoundException("Job not found!");
+        }
+
         model.addAttribute("currentUser", currentUser);
 
         if(bindingResult.hasErrors()) {
@@ -163,9 +166,8 @@ public class JobController {
                              @RequestParam(name = "experience", required = false) ExperienceLevel experience,
                              @RequestParam(name = "location", required = false) Location location,
                              @RequestParam(name = "salary", required = false) Long salary) {
-        //TODO: check if required false is really necessary
-        Page<Job> jobs = jobService.searchJobs(title, category, experience, location, salary, pageNumber-1);
 
+        Page<Job> jobs = jobService.searchJobs(title, category, experience, location, salary, pageNumber-1);
         model.addAttribute("currentUser", userService.findByUsername(principal.getName()));
         model.addAttribute("jobs", jobs);
         model.addAttribute("totalPages", jobs.getTotalPages());

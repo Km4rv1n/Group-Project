@@ -50,7 +50,7 @@
 
             <div>
                 <label>Salary:</label>
-                <form:input path="salary" type="number" step="1000" min="30000"/>
+                <form:input path="salary" type="number" step="5000" min="30000"/>
             </div>
 
             <div>

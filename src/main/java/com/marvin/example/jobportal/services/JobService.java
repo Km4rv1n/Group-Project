@@ -2,6 +2,7 @@ package com.marvin.example.jobportal.services;
 
 import com.marvin.example.jobportal.enums.ExperienceLevel;
 import com.marvin.example.jobportal.enums.Location;
+import com.marvin.example.jobportal.exceptions.JobNotFoundException;
 import com.marvin.example.jobportal.models.Job;
 import com.marvin.example.jobportal.models.User;
 import com.marvin.example.jobportal.repositories.JobRepository;
@@ -59,7 +60,7 @@ public class JobService {
      * @param id
      */
     public void deleteJobById(Integer id) {
-        Job job = jobRepository.findJobById(id).orElseThrow(() -> new RuntimeException("Job not found"));
+        Job job = jobRepository.findJobById(id).orElseThrow(() -> new JobNotFoundException("Job not found"));
         List<User> usersWithSavedJob = userRepository.findUsersWithSavedJob(job);
         for (User user : usersWithSavedJob) {
             user.getSavedJobs().removeIf(currentJob -> currentJob.equals(job));
@@ -75,7 +76,7 @@ public class JobService {
      * @return the job associated with the given id, or throw a JobNotFoundException if there's no job with that id
      */
     public Job getJobById(Integer id) {
-        return jobRepository.findJobById(id).orElseThrow(()-> new RuntimeException("Job not found"));
+        return jobRepository.findJobById(id).orElseThrow(()-> new JobNotFoundException("Job not found"));
     }
 
     /**

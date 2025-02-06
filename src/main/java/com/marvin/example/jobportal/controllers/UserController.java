@@ -48,9 +48,12 @@ public class UserController {
 
     @PutMapping("/personal-profile")
     public String updatePersonalProfile(@Valid @ModelAttribute(name = "user") User user, BindingResult bindingResult,
-                                        @RequestParam(value = "profilePictureFile", required = false) MultipartFile multipartFile) throws IOException {
+                                        @RequestParam(value = "profilePictureFile", required = false) MultipartFile multipartFile, Model model, Principal principal) throws IOException {
 
-        //model.addAttribute("currentUser", userService.findByEmail(principal.getName())); //for navbar
+        if (bindingResult.hasErrors()) {
+            return "personalProfile";
+        }
+        //model.addAttribute("currentUser", userService.findByUsername(principal.getName())); //for navbar
 
         if(multipartFile != null && !multipartFile.isEmpty()) {
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -80,10 +83,6 @@ public class UserController {
         }
 
         //userValidator.validate(user, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            return "personalProfile";
-        }
 
         userService.saveUser(user);
 

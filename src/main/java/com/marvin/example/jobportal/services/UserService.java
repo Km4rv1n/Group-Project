@@ -1,6 +1,7 @@
 package com.marvin.example.jobportal.services;
 
 import com.marvin.example.jobportal.enums.Role;
+import com.marvin.example.jobportal.exceptions.UserNotFoundException;
 import com.marvin.example.jobportal.models.User;
 import com.marvin.example.jobportal.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -39,10 +40,10 @@ public class UserService {
      * @return the User entity associated with the given email, or null if no user with the specified email exists
      */
     public User findByUsername(String email) {
-        return userRepository.findByEmail(email).orElseThrow( () -> new UsernameNotFoundException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow( () -> new UserNotFoundException("User not found"));
     }
 
     public User findById(Integer id) {
-        return userRepository.findById(id).orElseThrow( () -> new UsernameNotFoundException("User not found"));
+        return userRepository.findById(id).orElseThrow( () -> new UserNotFoundException("User not found"));
     }
 }

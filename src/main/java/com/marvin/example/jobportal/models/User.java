@@ -10,10 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
-
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -44,7 +41,7 @@ public class User {
     @Size(min=8, max = 250)
     private String password;
 
-    @Pattern(regexp = "^\\+[355][0-9]{10}$", message = "Invalid phone number format")
+    @Pattern(regexp = "^\\+355(6[7-9])\\d{7}$", message = "Invalid phone number format")
     private String phone;
 
     @Transient

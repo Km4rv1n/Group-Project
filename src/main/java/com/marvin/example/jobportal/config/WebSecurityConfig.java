@@ -16,10 +16,14 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    HandlerMappingIntrospector introspector;
 
+    private HandlerMappingIntrospector introspector;
     private UserDetailsService userDetailsService;
+
+    public WebSecurityConfig(HandlerMappingIntrospector introspector ,UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+        this.introspector = introspector;
+    }
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationSuccessHandler successHandler) throws Exception {
@@ -31,7 +35,7 @@ public class WebSecurityConfig {
                                 )
                                 .authenticated()
                                 .requestMatchers(new MvcRequestMatcher(introspector, "/recruiter/**")).hasRole("RECRUITER")
-
+                                .requestMatchers(new MvcRequestMatcher(introspector, "/applicant/**")).hasRole("APPLICANT")
                                 .anyRequest()
                                 .permitAll()
                 )

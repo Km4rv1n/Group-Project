@@ -1,5 +1,6 @@
 package com.marvin.example.jobportal.controllers;
 
+import com.marvin.example.jobportal.exceptions.ApplicationExistsException;
 import com.marvin.example.jobportal.models.Application;
 import com.marvin.example.jobportal.models.Job;
 import com.marvin.example.jobportal.models.User;
@@ -54,7 +55,11 @@ public class ApplicationController {
                                  @PathVariable Integer jobId, Model model, Principal principal, RedirectAttributes redirectAttributes) throws IOException {
         Job job = jobService.getJobById(jobId);
         User currentUser = userService.findByUsername(principal.getName());
-        //TODO: maybe check sth idk
+
+        if(applicationService.existsApplication(currentUser, job)){
+            throw new ApplicationExistsException("Application already exists");
+        }
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("job", job);
             model.addAttribute("currentUser", currentUser);
