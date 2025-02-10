@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: marvinkika
-  Date: 5.2.25
-  Time: 9:44 AM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -12,88 +5,121 @@
 <html>
 <head>
     <title>My Saved Jobs</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<nav>
-    <div><h1>Tech<div id="neon-green">Sphere</div></h1>&trade;</div>
 
-    <a href="/applicant/dashboard/1">Dashboard</a>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><h1 class="d-inline">Tech<span class="text-success">Sphere</span>&trade;</h1></a>
 
-    <a href="/applications/${currentUser.id}/1">My applications</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" href="/applicant/dashboard/1">Dashboard</a>
+            <a class="nav-link text-white" href="/applications/${currentUser.id}/1">My Applications</a>
+            <a class="nav-link text-white" href="/jobs/saved/1">Saved Jobs</a>
 
-    <a href="/jobs/saved/1">Saved Jobs</a>
+            <a class="nav-link text-white d-flex align-items-center" href="/user/personal-profile">
+                <img src="${currentUser.profilePictureUrl}" class="rounded-circle me-2" width="30" height="30" alt="Profile Picture"/>
+                <span><c:out value="${currentUser.firstName}"/> <c:out value="${currentUser.lastName}"/></span>
+            </a>
 
-    <a href="/user/personal-profile">
-        <img src="${currentUser.profilePictureUrl}" class="profile-icon" alt="profile-picture"/>
-        <span><c:out value="${currentUser.firstName}"/>&nbsp;<c:out value="${currentUser.lastName}"/></span>
-    </a>
-
-    <form method="post" action="/logout">
-        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-        <input type="submit" class="btn btn-danger btn-sm text-white" value="Log out">
-    </form>
+            <form method="post" action="/logout" class="d-inline">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger btn-sm ms-3">Log out</button>
+            </form>
+        </div>
+    </div>
 </nav>
 
-<section>
-    <c:if test="${message != null}">
-        <p><c:out value="${message}"/></p>
-    </c:if>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>Job Title</th>
-            <th>Category</th>
-            <th>Location</th>
-            <th>Salary</th>
-            <th>Experience Level</th>
-            <th>Posted By</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:choose>
-            <c:when test="${savedJobs.content.size()!=0}">
-                <c:forEach var="job" items="${savedJobs.content}">
-                    <tr>
-                        <td><c:out value="${job.title}"/></td>
-                        <td><c:out value="${job.category.name}"/></td>
-                        <td><c:out value="${job.location}"/></td>
-                        <td><c:out value="${job.salary}"/></td>
-                        <td><c:out value="${job.experienceLevel}"/></td>
-                        <td><a href="/user/${job.createdBy.id}"><c:out value="${job.createdBy.firstName}"/>&nbsp;<c:out value="${job.createdBy.lastName}"/></a></td>
-                        <td><a href="/jobs/view/${job.id}">View</a>
-                            <form method="post" action="/jobs/unsave/${job.id}">
-                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                                <input type="hidden" name="_method" value="delete">
-                                <input type="submit" value="Unsave">
-                            </form>
-                        </td>
-                    </tr>
-                </c:forEach>
+<!-- Message Alert -->
+<c:if test="${message != null}">
+    <div class="alert alert-info text-center mt-3">
+        <c:out value="${message}"/>
+    </div>
+</c:if>
 
-                <div>
-                    <c:forEach begin="1" end="${totalPages}" var="index">
-                        <a href="/applicant/dashboard/${index}">${index}</a>
+<!-- Saved Jobs Table -->
+<div class="container mt-4">
+    <div class="card shadow p-3">
+        <h2 class="mb-3 text-center">My Saved Jobs</h2>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Job Title</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Salary</th>
+                <th>Experience Level</th>
+                <th>Posted By</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <c:choose>
+                <c:when test="${savedJobs.content.size()!=0}">
+                    <c:forEach var="job" items="${savedJobs.content}">
+                        <tr>
+                            <td><c:out value="${job.title}"/></td>
+                            <td><c:out value="${job.category.name}"/></td>
+                            <td><c:out value="${job.location}"/></td>
+                            <td><c:out value="${job.salary}"/></td>
+                            <td><c:out value="${job.experienceLevel}"/></td>
+                            <td>
+                                <a href="/user/${job.createdBy.id}" class="text-decoration-none">
+                                    <c:out value="${job.createdBy.firstName}"/> <c:out value="${job.createdBy.lastName}"/>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/jobs/view/${job.id}" class="btn btn-primary btn-sm">View</a>
+                                <form method="post" action="/jobs/unsave/${job.id}" class="d-inline">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                    <input type="hidden" name="_method" value="delete">
+                                    <button type="submit" class="btn btn-danger btn-sm">Unsave</button>
+                                </form>
+                            </td>
+                        </tr>
                     </c:forEach>
-                </div>
-            </c:when>
+                </c:when>
 
-            <c:otherwise>
-                <tr>
-                    <td colspan="7">No jobs found!</td>
-                </tr>
-            </c:otherwise>
+                <c:otherwise>
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No jobs found!</td>
+                    </tr>
+                </c:otherwise>
+            </c:choose>
+            </tbody>
+        </table>
 
+        <!-- Pagination -->
+        <c:if test="${totalPages > 1}">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <c:forEach begin="1" end="${totalPages}" var="index">
+                        <li class="page-item">
+                            <a class="page-link" href="/applicant/dashboard/${index}">${index}</a>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </nav>
+        </c:if>
+    </div>
+</div>
 
-        </c:choose>
-        </tbody>
-    </table>
-</section>
-<footer>
-    <span>&copy; <span id="currentYear"></span> TechSphere. All rights reserved.</span>
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-4">
+    &copy; <span id="currentYear"></span> TechSphere. All rights reserved.
 </footer>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/index.js"></script>
+<script>
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>

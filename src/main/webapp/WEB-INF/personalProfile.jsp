@@ -1,104 +1,109 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: marvinkika
-  Date: 4.2.25
-  Time: 10:40 AM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page isErrorPage="true" %>
 
 <html>
 <head>
-    <title>My Profile</title>
-    <link href="/css/styles.css" rel="stylesheet">
+    <title>New Job</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-
-<nav>
-    <div><h1>Tech<div id="neon-green">Sphere</div></h1>&trade;</div>
-
-    <c:if test="${currentUser.role == 'ROLE_RECRUITER'}">
-        <a href="/recruiter/dashboard/1">Dashboard</a>
-    </c:if>
-
-    <c:if test="${currentUser.role == 'ROLE_APPLICANT'}">
-        <a href="/applicant/dashboard/1">Dashboard</a>
-
-        <a href="/applications/${currentUser.id}/1">My applications</a>
-
-        <a href="/jobs/saved/1">Saved Jobs</a>
-    </c:if>
-
-    <a href="/user/personal-profile">
-        <img src="${currentUser.profilePictureUrl}" class="profile-icon" alt="profile-picture"/>
-        <span><c:out value="${currentUser.firstName}"/>&nbsp;<c:out value="${currentUser.lastName}"/></span>
-    </a>
-
-    <form method="post" action="/logout">
-        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-        <input type="submit" class="btn btn-danger btn-sm text-white" value="Log out">
-    </form>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Tech<span class="text-success">Sphere</span>™</a>
+        <div class="d-flex align-items-center">
+            <a href="/recruiter/dashboard/1" class="btn btn-outline-light me-3">Dashboard</a>
+            <a href="/user/personal-profile" class="d-flex align-items-center text-white text-decoration-none">
+                <img src="${currentUser.profilePictureUrl}" class="rounded-circle me-2" width="40" height="40" alt="profile">
+                <span><c:out value="${currentUser.firstName}"/> <c:out value="${currentUser.lastName}"/></span>
+            </a>
+            <form method="post" action="/logout" class="ms-3">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger btn-sm">Log out</button>
+            </form>
+        </div>
+    </div>
 </nav>
 
-<section>
-    <div class="card shadow-lg p-4  w-50">
-        <fieldset class="border p-4 rounded">
-            <legend class="w-auto float-none text-center ps-3 pe-3">My Profile</legend>
-
-            <form:form method="post" action="/user/personal-profile" modelAttribute="user" enctype="multipart/form-data">
+<div class="container my-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create a Job</h4>
+        </div>
+        <div class="card-body">
+            <form:form method="post" action="/jobs/new" modelAttribute="job">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                <input type="hidden" name="_method" value="put">
 
-                <div class="d-flex flex-column align-items-center mb-4">
-                    <form:input path="profilePictureUrl" type="hidden"/>
-                    <img src="${currentUser.profilePictureUrl}" class="profile-picture rounded-circle img-fluid mb-3"
-                         alt="Profile-Picture"><br>
-                    <input type="file" name="profilePictureFile" class="form-control w-50"
-                           accept="image/png, image/jpeg, image/jpg">
+                <div class="mb-3"><form:errors path="*" class="text-danger"/></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Job Title:</label>
+                        <form:input path="title" class="form-control"/>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Salary:</label>
+                        <form:input path="salary" class="form-control" type="number" step="5000" min="30000"/>
+                    </div>
                 </div>
 
-                <form:input path="id" type="hidden"/>
-                <form:input path="password" type="hidden"/>
-                <form:input path="passwordConfirmation" type="hidden"/>
-                <form:input path="role" type="hidden"/>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Available Vacancies:</label>
+                        <form:input path="vacancies" class="form-control" type="number" min="1" max="50"/>
+                    </div>
 
-                <div class="form-floating mb-3">
-                    <form:input path="firstName" class="form-control" id="edit-first-name" placeholder="First Name"/>
-                    <label for="edit-first-name">First Name</label>
-                    <i><small class="form-text text-danger"><form:errors path="firstName"/></small></i>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Category:</label>
+                        <form:input path="category.name" class="form-control" list="existing-categories"/>
+                        <datalist id="existing-categories">
+                            <c:forEach var="category" items="${categories}">
+                                <option><c:out value="${category.name}"/></option>
+                            </c:forEach>
+                        </datalist>
+                    </div>
                 </div>
-                <div class="form-floating mb-3">
-                    <form:input path="lastName" class="form-control" id="edit-last-name" placeholder="Last Name"/>
-                    <label for="edit-last-name">Last Name</label>
-                    <i><small class="form-text text-danger"><form:errors path="lastName"/></small></i>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Experience Level:</label>
+                        <form:select path="experienceLevel" class="form-select">
+                            <form:option value="JUNIOR">Junior</form:option>
+                            <form:option value="MEDIUM">Medium</form:option>
+                            <form:option value="SENIOR">Senior</form:option>
+                        </form:select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Location:</label>
+                        <form:select path="location" class="form-select">
+                            <form:option value="ONSITE">Onsite</form:option>
+                            <form:option value="REMOTE">Remote</form:option>
+                            <form:option value="HYBRID">Hybrid</form:option>
+                        </form:select>
+                    </div>
                 </div>
-                <div class="form-floating mb-3">
-                    <form:input path="phone" class="form-control" id="edit-phone" placeholder="Phone" type="tel"/>
-                    <label for="edit-phone">Phone</label>
-                    <i><small class="form-text text-danger"><form:errors path="phone"/></small></i>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <form:textarea path="description" class="form-control" rows="5"/>
                 </div>
-                <div class="form-floating mb-3">
-                    <form:input path="email" class="form-control" id="edit-email" placeholder="Email"/>
-                    <label for="edit-email">Email</label>
-                    <i><small class="form-text text-danger"><form:errors path="email"/></small></i>
-                </div>
-                <div class="form-floating mb-3">
-                    <form:input path="dateJoined" class="form-control" readonly="true" id="date-joined"
-                                placeholder="Date Joined"/>
-                    <label for="date-joined">Date Joined</label>
-                </div>
-                <input type="submit" value="Save Changes" class="btn btn-primary w-100">
+
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
             </form:form>
-        </fieldset>
+        </div>
     </div>
-</section>
+</div>
 
-<footer>
+<footer class="text-center p-4 bg-dark text-light mt-5">
     <span>&copy; <span id="currentYear"></span> TechSphere. All rights reserved.</span>
 </footer>
 
-<script src="/js/index.js"></script>
+<script>
+    document.getElementById("currentYear").innerText = new Date().getFullYear();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
